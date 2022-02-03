@@ -30,7 +30,13 @@ node CREATE_NODE(char* fn, char* ln, int age){
     return x;
 }
 
-void INSERT(node* ht, char* fn, char* ln, int ag){
+void INSERT(node* ht){
+    char fn[1000];
+    char ln[1000];
+    int ag;
+    scanf("%s",&fn);
+    scanf("%s",&ln);
+    scanf("%d",&ag);
     int h=0;
     int i=0;
     node ne=CREATE_NODE(fn,ln,ag);
@@ -80,7 +86,13 @@ node SEARCH(node root, char* fn, char* ln){
     return NULL;
 }
 
-void PRINT(node* ht,char* fn, char* ln){
+void PRINT(node* ht){
+    char fn[1000];
+    char ln[1000];
+    scanf("%s",&fn);
+    scanf("%s",&ln);
+    // char o;
+    // scanf("%c",&o);
     int h=0;
     int i=0;
     while(ln[i]!='\0'){
@@ -123,28 +135,21 @@ int main(){
         ne->right=NULL;
         ht[i]=ne;
     }
-    while(true){
-        char type,u;
-        if(u=='e')break;
-        // char* fn,*ln;
-        int ag;
-        char fn[100];
-        char ln[100];
-        // fn=(char*)malloc(sizeof(char)*100);
-        // ln=(char*)malloc(sizeof(char)*100);
-        scanf("%c ",&type);
-        if(type=='e')break;
-        scanf("%s ",&fn);
-        scanf("%s ",&ln);
-        if(type=='i'){
-            scanf("%d", &ag);
-            INSERT(ht,fn,ln,ag);
-        }
-        else{
-            PRINT(ht,fn,ln);
-        }
+    char u;
+    u='a';
+    while(u!='t'){
         scanf("%c",&u);
-        // if(u!='\n')break;
+        switch (u)
+        {
+        case 'i':
+            INSERT(ht);
+            break;
+        case 'p':
+            PRINT(ht);
+            break;
+        case 't':
+            break;
+        }
     }
     return 0;
 }
