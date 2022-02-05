@@ -56,7 +56,7 @@ void SEARCH(stringg* ht){
     char roll[10];
     scanf("%s",&roll);
     int hval=(roll[1]-'0')*100+(roll[2]-'0')*10+(roll[3]-'0');
-    if(strcmp(ht[hval],"0")==0){
+    if(strcmp(ht[hval],"0")==0 || ht[hval][0]!=roll[0]){
         printf("NOT FOUND\n");
     }
     else{
@@ -69,7 +69,9 @@ void DELETE(stringg* ht){
     char roll[10];
     scanf("%s",&roll);
     int hval=(roll[1]-'0')*100+(roll[2]-'0')*10+(roll[3]-'0');
-    strcpy(ht[hval], "0");
+    if(ht[hval][0]==roll[0]){
+        strcpy(ht[hval], "0");
+    }
     return;
 }
 
