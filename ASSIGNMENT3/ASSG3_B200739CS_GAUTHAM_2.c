@@ -1,4 +1,4 @@
-// made by gautham on 9th feb
+// made by gautham on 18th feb
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
