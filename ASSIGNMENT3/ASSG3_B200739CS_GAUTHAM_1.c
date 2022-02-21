@@ -35,19 +35,19 @@ node CREATE_NODE(int k){
     return ele;
 }
 
-int FINDHEIGHT(node* pre){
+int FINDHEIGHT(node pre){
     int lh, rh;
-    if((*pre)->left==NULL){
+    if((pre)->left==NULL){
         lh=-1;
     }
     else{
-        lh=(*pre)->left->height;
+        lh=(pre)->left->height;
     }
-    if((*pre)->right==NULL){
+    if((pre)->right==NULL){
         rh=-1;
     }
     else{
-        rh=(*pre)->right->height;
+        rh=(pre)->right->height;
     }
     return max(lh, rh)+1;
 }
@@ -75,8 +75,8 @@ void ROTATE_LEFT(node* pre){
     node ne=(*pre)->right;
     (*pre)->right=ne->left;
     ne->left=*pre;
-    (*pre)->height=FINDHEIGHT(pre);
-    ne->height=FINDHEIGHT(&ne);
+    (*pre)->height=FINDHEIGHT(*pre);
+    ne->height=FINDHEIGHT(ne);
     *pre=ne;
 }
 
@@ -84,8 +84,8 @@ void ROTATE_RIGHT(node* pre){
     node ne=(*pre)->left;
     (*pre)->left=ne->right;
     ne->right=*pre;
-    (*pre)->height=FINDHEIGHT(pre);
-    ne->height=FINDHEIGHT(&ne);
+    (*pre)->height=FINDHEIGHT(*pre);
+    ne->height=FINDHEIGHT(ne);
     *pre=ne;
 }
 
@@ -135,7 +135,7 @@ void INSERT(node *pre, node ele){
             }
         }
     }
-    (*pre)->height=FINDHEIGHT(pre);
+    (*pre)->height=FINDHEIGHT(*pre);
     return;
 }
 
@@ -165,7 +165,7 @@ node DELETENODE(node ele, int k){
                 ele=NULL;
             }
             else{
-                *cur=*ele;
+                *ele=*cur;
             }
 
         }
@@ -176,7 +176,7 @@ node DELETENODE(node ele, int k){
         }
     }
     if(ele==NULL)return ele;
-    ele->height=FINDHEIGHT(&ele);
+    ele->height=FINDHEIGHT(ele);
     if(GETBALANCE(ele)>1 && GETBALANCE(ele->left)>=0){
         ROTATE_RIGHT(&ele);
     }
@@ -247,8 +247,9 @@ int main(){
         case 'd':
         {
             scanf(" %d",&k);
-            node ele=DELETENODE(t->root, k);
-            if(ele!=NULL){
+            node pre=SEARCH(t, k);
+            if(pre!=NULL){
+                node ele=DELETENODE(t->root, k);
                 printf("%d\n",k);
             }
             else{
