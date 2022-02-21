@@ -249,7 +249,7 @@ int main(){
             scanf(" %d",&k);
             node pre=SEARCH(t, k);
             if(pre!=NULL){
-                node ele=DELETENODE(t->root, k);
+                t->root=DELETENODE(t->root, k);
                 printf("%d\n",k);
             }
             else{
