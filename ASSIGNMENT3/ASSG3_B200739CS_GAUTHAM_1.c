@@ -9,7 +9,6 @@ struct nod{
     int key;
     struct nod* left;
     struct nod* right;
-    struct nod* par;
     int height;
 };
 typedef struct nod* node;
@@ -28,7 +27,6 @@ node CREATE_NODE(int k){
     node ele;
     ele=(node)malloc(sizeof(struct nod));
     ele->key=k;
-    ele->par=NULL;
     ele->right=NULL;
     ele->left=NULL;
     ele->height=0;
@@ -139,10 +137,10 @@ void INSERT(node *pre, node ele){
     return;
 }
 
-node MINIMUM(node ele){
+node MAXIMUM(node ele){
     node req=ele;
-    while(req->left!=NULL){
-        req=req->left;
+    while(req->right!=NULL){
+        req=req->right;
     }
     return req;
 }
@@ -170,9 +168,9 @@ node DELETENODE(node ele, int k){
 
         }
         else{
-            node pre=MINIMUM(ele->right);
+            node pre=MAXIMUM(ele->left);
             ele->key=pre->key;
-            ele->right=DELETENODE(ele->right, ele->key);
+            ele->left=DELETENODE(ele->left, ele->key);
         }
     }
     if(ele==NULL)return ele;
