@@ -147,7 +147,52 @@ node EXTRACTMIN(node h){
     node t=curr;
     curr=curr->lchild;
     node ne=(node)malloc(sizeof(struct nod));
-    
+    ne->par=NULL;
+    ne=curr;
+    prev=NULL;
+    next=NULL;
+    while(curr!=NULL){
+        next=curr->rsib;
+        curr->rsib=prev;
+        prev=curr;
+        curr=next;
+    }
+    ne=prev;
+    node ret=UNION(h,ne);
+    return ret;
+}
+
+node SEARCH(node h, int k){
+    if(h==NULL)return NULL;
+    if(h->key==k)return h;
+    node s1=SEARCH(h->lchild,k);
+    if(s1!=NULL)return s1;
+    node s2=SEARCH(h->rsib,k);
+    return s2;
+}
+
+void DECREASEKEY(node head, int pre, int ne){
+    node x=SEARCH(head,pre);
+    if(x==NULL)return;
+    x->key-=ne;
+    node y=x->par;
+    while(y!=NULL && x->key<y->key){
+        int temp=x->key;
+        x->key=y->key;
+        y->key=temp;
+        x=y;
+        y=y->par;
+    }
+    return;
+}
+
+node DELETE(node head, int k){
+    if(head==NULL)return NULL;
+    node x=SEARCH(head,k);
+    if(x==NULL)return NULL;
+    DECREASEKEY(head,k,1e9+7);
+    node ret=EXTRACTMIN(head);
+    return ret;
 }
 
 int main(){
