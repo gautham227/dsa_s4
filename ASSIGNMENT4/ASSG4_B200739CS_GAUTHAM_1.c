@@ -89,12 +89,15 @@ void PRINT(heap hp){
         printf("%d ",cur->no->key);
         DEQUEUE(q);
         node x=cur->no;
-        while(x->rsib!=NULL){
-            ENQUEUE(q,x->rsib);
-            x=x->rsib;
-        }
         if(cur->no->lchild!=NULL){
             ENQUEUE(q,cur->no->lchild);
+        }
+        while(x->rsib!=NULL){
+            printf("%d ",x->rsib->key);
+            x=x->rsib;
+            if(x->lchild!=NULL){
+                ENQUEUE(q,x->lchild);
+            }
         }
     }
     printf("\n");
@@ -311,8 +314,6 @@ int main(){
             if(ne!=NULL)printf("%d\n",ne->key);
             else printf("-1\n");
             hp->head=EXTRACTMIN(hp->head);
-            // if(ne!=NULL)printf("%d\n",ne->key);
-            // else printf("-1\n");
             break;
         case 'r':
             scanf("%d",&y);
