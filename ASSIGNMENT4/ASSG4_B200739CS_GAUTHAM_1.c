@@ -21,6 +21,86 @@ struct hea{
 };
 typedef struct hea* heap;
 
+struct qnod{
+    node no;
+    struct qnod* next;
+};
+typedef struct qnod* qnode;
+
+struct queu{
+    qnode head;
+    qnode tail;
+};
+typedef struct queu* queue;
+
+qnode CREATE_QUEUE_NODE(node k){
+    qnode pre;
+    pre=(qnode)malloc(sizeof(struct qnod));
+    pre->no=k;
+    pre->next=NULL;
+    return pre;
+}
+
+bool QUEUE_EMPTY(queue q){
+    if(q->head==NULL){
+        return true;
+    }
+    return false;
+}
+
+void ENQUEUE(queue q, node k){
+    qnode ne=CREATE_QUEUE_NODE(k);
+    if(q->head==NULL){
+        q->head=ne;
+        q->tail=ne;
+    }
+    else{
+        q->tail->next=ne;
+        q->tail=ne;
+    }
+    return;
+}
+
+int DEQUEUE(queue q){
+    bool b=QUEUE_EMPTY(q);
+    if(b)return 0;
+    if(q->head->next==NULL){
+        q->head=NULL;
+        q->tail=NULL;
+    }
+    else{
+        q->head=q->head->next;
+    }
+    return 1;
+}
+
+void PRINT(heap hp){
+    queue q;
+    q=(queue)malloc(sizeof(struct queu));
+    if(hp->head==NULL){
+        printf("\n");
+        return;
+    }
+    q->head=NULL;
+    q->tail=NULL;
+    ENQUEUE(q,hp->head);
+    while(!QUEUE_EMPTY(q)){
+        qnode cur=q->head;
+        printf("%d ",cur->no->key);
+        DEQUEUE(q);
+        node x=cur->no;
+        while(x->rsib!=NULL){
+            ENQUEUE(q,x->rsib);
+            x=x->rsib;
+        }
+        if(cur->no->lchild!=NULL){
+            ENQUEUE(q,cur->no->lchild);
+        }
+    }
+    printf("\n");
+    return;
+}
+
 heap MAKEHEAP(){
     heap h;
     h=(heap)malloc(sizeof(struct hea));
@@ -44,12 +124,12 @@ node MINIMUM(node head){
     if(x==NULL)return NULL;
     node pre=NULL;
     node m=x;
-    int min=-1e9;
+    int min=1e9;
     while(x!=NULL){
         if(x->key<min){
             min=x->key;
             pre=x;
-            m=x->rsib;
+            m=x;
         }
         x=x->rsib;
     }
@@ -69,7 +149,7 @@ node MERGE(node head1, node head2){
     if(head2==NULL)return head1;
     node ne=NULL;
     if(head2->degree>=head1->degree)ne=head1;
-    else ne=head2;
+    else if(head2->degree<head1->degree) ne=head2;
     while(head1!=NULL && head2!=NULL){
         if(head2->degree>head1->degree){
             head1=head1->rsib;
@@ -88,51 +168,55 @@ node MERGE(node head1, node head2){
     return ne;
 }
 
-heap UNION(node head1,node head2){
+node UNION(node head1,node head2){
     if(head1==NULL && head2==NULL){
         return NULL;
     }
     heap hp=MAKEHEAP();
     hp->head=MERGE(head1,head2);
-    if(hp->head==NULL)return hp;
+    // if(hp->head==NULL)return hp->head;
+    node pres=hp->head;
     node prev=NULL;
-    node curr=hp->head;
+    node curr=pres;
     node next=curr->rsib;
     while(next!=NULL){
-        if(curr->degree!=next->degree || (next->rsib!=NULL && next->rsib->degree==curr->degree)) {
+        if((curr->degree!=next->degree) || ((next->rsib!=NULL) && (next->rsib)->degree==curr->degree)) {
             prev=curr;
             curr=next;
         }
-        else if(curr->key<=next->key){
-            curr->rsib=next->rsib;
-            LINK(next,curr);
-        }
-        else if(prev==NULL){
-            hp->head=next;
-            LINK(curr,next);
-            curr=next;
-        }
         else{
-            prev->rsib=next;
-            LINK(curr,next);
-            curr=next;
+            if(curr->key<=next->key){
+                curr->rsib=next->rsib;
+                LINK(next,curr);
+            }
+            else{
+                if(prev==NULL){
+                    pres=next;
+                }
+                else{
+                    prev->rsib=next;
+                }
+                LINK(curr,next);
+                curr=next;
+            }
         }
         next=curr->rsib;
     }
-    return curr;
+    return pres;
 }
 
-void INSERT(heap hp, int k){
+node INSERT(heap hp, int k){
     heap h2=MAKEHEAP();
     node ne=CREATE_NODE(k);
     h2->head=ne;
-    hp=UNION(hp,h2);
+    hp->head=UNION(hp->head,h2->head);
+    return hp->head;
 }
 
 node EXTRACTMIN(node h){
     if(h==NULL)return NULL;
     node prev=NULL,curr=h,next=curr->rsib;
-    node mi=MINIMUM(h)->key;
+    node mi=MINIMUM(h);
     int min;
     if(mi!=NULL)min=mi->key;
     while(next!=NULL){
@@ -171,9 +255,9 @@ node SEARCH(node h, int k){
     return s2;
 }
 
-void DECREASEKEY(node head, int pre, int ne){
+bool DECREASEKEY(node head, int pre, int ne){
     node x=SEARCH(head,pre);
-    if(x==NULL)return;
+    if(x==NULL)return false;
     x->key-=ne;
     node y=x->par;
     while(y!=NULL && x->key<y->key){
@@ -183,7 +267,7 @@ void DECREASEKEY(node head, int pre, int ne){
         x=y;
         y=y->par;
     }
-    return;
+    return true;
 }
 
 node DELETE(node head, int k){
@@ -206,26 +290,37 @@ int main(){
         {
         case 'i':
             scanf("%d",&k);
-            INSERT(hp,k);
+            hp->head=INSERT(hp,k);
             break;
         case 'd':
             scanf("%d",&k);
-            DELETE(hp,k);
+            ne=DELETE(hp->head,k);
+            if(ne!=NULL)printf("%d\n",k);
+            else printf("-1\n");
             break;
         case 'p':
             PRINT(hp);
             break;
         case 'm':
-            ne=MINIMUM(hp);
-            printf("%d\n",ne->key);
+            ne=MINIMUM(hp->head);
+            if(ne!=NULL)printf("%d\n",ne->key);
+            else printf("-1\n");
             break;
         case 'x':
-            EXTRACTMIN(hp);
+            ne=MINIMUM(hp->head);
+            if(ne!=NULL)printf("%d\n",ne->key);
+            else printf("-1\n");
+            hp->head=EXTRACTMIN(hp->head);
+            // if(ne!=NULL)printf("%d\n",ne->key);
+            // else printf("-1\n");
             break;
         case 'r':
             scanf("%d",&y);
             scanf("%d",&k);
-            DECREASEKEY(hp,y,k);
+            if(DECREASEKEY(hp->head,y,k)){
+                printf("%d\n",y-k);
+            }
+            else printf("-1\n");
             break;
         case 'e':
             break;
