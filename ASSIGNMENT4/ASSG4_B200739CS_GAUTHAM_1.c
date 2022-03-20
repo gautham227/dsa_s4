@@ -311,9 +311,9 @@ int main(){
             break;
         case 'x':
             ne=MINIMUM(hp->head);
-            if(ne!=NULL)printf("%d\n",ne->key);
+            if(ne!=NULL){printf("%d\n",ne->key);
+            hp->head=EXTRACTMIN(hp->head);}
             else printf("-1\n");
-            hp->head=EXTRACTMIN(hp->head);
             break;
         case 'r':
             scanf("%d",&y);
