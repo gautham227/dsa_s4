@@ -74,34 +74,36 @@ int DEQUEUE(queue q){
     return 1;
 }
 
-void PRINT(heap hp){
+void level(node r){
+    if(r==NULL)return;
+    printf("%d ",r->key);
+    if(r->lchild==NULL)return;
     queue q;
     q=(queue)malloc(sizeof(struct queu));
-    if(hp->head==NULL){
-        printf("\n");
-        return;
-    }
     q->head=NULL;
     q->tail=NULL;
-    ENQUEUE(q,hp->head);
+    node pre=r->lchild;
+    ENQUEUE(q,pre);
+    node ne;
     while(!QUEUE_EMPTY(q)){
-        qnode cur=q->head;
-        printf("%d ",cur->no->key);
+        ne=q->head->no;
         DEQUEUE(q);
-        node x=cur->no;
-        if(cur->no->lchild!=NULL){
-            ENQUEUE(q,cur->no->lchild);
-        }
-        while(x->rsib!=NULL){
-            printf("%d ",x->rsib->key);
-            x=x->rsib;
-            if(x->lchild!=NULL){
-                ENQUEUE(q,x->lchild);
+        while(ne!=NULL){
+            printf("%d ",ne->key);
+            if(ne->lchild!=NULL){
+                ENQUEUE(q,ne->lchild);
             }
+            ne=ne->rsib;
         }
     }
+}
+
+void PRINT(node hp){
+    while(hp!=NULL){
+        level(hp);
+        hp=hp->rsib;
+    }
     printf("\n");
-    return;
 }
 
 heap MAKEHEAP(){
@@ -177,7 +179,6 @@ node UNION(node head1,node head2){
     }
     heap hp=MAKEHEAP();
     hp->head=MERGE(head1,head2);
-    // if(hp->head==NULL)return hp->head;
     node pres=hp->head;
     node prev=NULL;
     node curr=pres;
@@ -302,7 +303,7 @@ int main(){
             else printf("-1\n");
             break;
         case 'p':
-            PRINT(hp);
+            PRINT(hp->head);
             break;
         case 'm':
             ne=MINIMUM(hp->head);
