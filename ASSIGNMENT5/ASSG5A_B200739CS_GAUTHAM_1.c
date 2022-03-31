@@ -30,12 +30,9 @@ struct list2s{
 };
 typedef struct list2s* list2;
 
-list1 set1, set2;
-list2 set3, set4;
-
 int cnt1=0, cnt2=0, cnt3=0, cnt4=0;
 
-int MAKESET(int k){
+int MAKESET(int k, list1 set1, list1 set2, list2 set3, list2 set4){
     if(set1[k].head!=NULL){
         return -1;
     }
@@ -63,13 +60,163 @@ int MAKESET(int k){
     return k;
 }
 
-int main(){
-    set1=(list1)malloc(10000*sizeof(struct list1s));
-	set2=(list1)malloc(10000*sizeof(struct list1s));
-	set3=(list2)malloc(10000*sizeof(struct list2s));
-	set4=(list2)malloc(10000*sizeof(struct list2s));
+node1 path_comp1(node1 nod){
+    cnt3++;
+    if(nod!=nod->represent){
+        nod->represent=path_comp1(nod->represent);
+    }
+    return nod->represent;
+}
 
-    for(int i=0;i<10000;i++){
+node2 path_comp2(node2 nod){
+    cnt4++;
+    if(nod!=nod->represent){
+        nod->represent=path_comp2(nod->represent);
+    }
+    return nod->represent;
+}
+
+node1 find1(int k, list1 set1){
+    node1 n=set1[k].head;
+    if(n==NULL)return NULL;
+    cnt1++;
+    while(n!=NULL){
+        if(n->represent!=n){
+            n=n->represent;
+            cnt1++;
+        }
+        else{
+            break;
+        }
+    }
+    return n;
+}
+
+node2 find2(int k, list2 set3){
+    node2 n=set3[k].head;
+    if(n==NULL)return NULL;
+    cnt2++;
+    while(n!=NULL){
+        if(n->represent!=n){
+            n=n->represent;
+            cnt2++;
+        }
+        else{
+            break;
+        }
+    }
+    return n;
+}
+
+node1 find3(int k, list1 set2){
+    node1 n=set2[k].head;
+    if(n==NULL)return NULL;
+    n=path_comp1(set2[k].head);
+    return n;
+}
+
+node2 find4(int k, list2 set4){
+    node2 n=set4[k].head;
+    if(n==NULL)return NULL;
+    n=path_comp2(set4[k].head);
+    return n;
+}
+
+int union1(int val1, int val2, list1 set1){
+    node1 n=(node1)malloc(sizeof(struct nods1));
+    node1 n1=(node1)malloc(sizeof(struct nods1));
+    n=find1(val1, set1);
+    n1=find1(val2, set1);
+    if(n==NULL || n1==NULL){
+        return 0;
+    }
+    if(n->val==n1->val){
+        return n->val;
+    }
+    else{
+        n1->represent=n;
+        return n->val;
+    }
+}
+
+int union2(int val1, int val2, list2 set3){
+    node2 n=(node2)malloc(sizeof(struct nods2));
+    node2 n1=(node2)malloc(sizeof(struct nods2));
+    n->rank=0;
+    n1->rank=0;
+    n=find2(val1, set3);
+    n1=find2(val2, set3);
+    if(n==NULL || n1==NULL){
+        return 0;
+    }
+    if(n->rank>n1->rank){
+        n1->represent=n;
+        return n->key;
+    }
+    else if(n->rank<n1->rank){
+        n->represent=n1;
+        return n1->key;
+    }
+    else{
+        n1->represent=n;
+        n->rank++;
+        return n->key;
+    }
+}
+
+int union3(int val1, int val2, list1 set2){
+    node1 n=(node1)malloc(sizeof(struct nods1));
+    node1 n1=(node1)malloc(sizeof(struct nods1));
+    n=find3(val1, set2);
+    n1=find3(val2, set2);
+    if(n==NULL || n1==NULL){
+        return 0;
+    }
+    if(n->val==n1->val){
+        return n->val;
+    }
+    else{
+        n1->represent=n;
+        return n->val;
+    }
+}
+
+int union4(int val1, int val2, list2 set4){
+    node2 n=(node2)malloc(sizeof(struct nods2));
+    node2 n1=(node2)malloc(sizeof(struct nods2));
+    n->rank=0;
+    n1->rank=0;
+    n=find4(val1, set4);
+    n1=find4(val2, set4);
+    if(n==NULL || n1==NULL){
+        return 0;
+    }
+    if(n->rank>n1->rank){
+        n1->represent=n;
+        return n->key;
+    }
+    else if(n->rank<n1->rank){
+        n->represent=n1;
+        return n1->key;
+    }
+    else{
+        n1->represent=n;
+        n->rank++;
+        return n->key;
+    }
+}
+
+int main(){
+
+    list1 set1, set2;
+    list2 set3, set4;
+
+    set1=(list1)malloc(10001*sizeof(struct list1s));
+	set2=(list1)malloc(10001*sizeof(struct list1s));
+	set3=(list2)malloc(10001*sizeof(struct list2s));
+	set4=(list2)malloc(10001*sizeof(struct list2s));
+
+    for(int i=0;i<10001;i++){
         set1[i].head=NULL;
         set2[i].head=NULL;
         set3[i].head=NULL;
@@ -78,21 +225,46 @@ int main(){
 
     char c='a';
     int k, res;
+    int u1, u2; // 2 vals used for union
+    // to store return val of find
+    node1 f1, f3; 
+    node2 f2, f4;
+    int val1, val2,val3, val4;
     while(c!='s'){
         scanf("%c", &c);
         switch (c)
         {
         case 'm':
             scanf("%d", &k);
-            res=MAKESET(k);
+            res=MAKESET(k, set1, set2, set3, set4);
             printf("%d\n", res);
             break;
 
         case 'f':
-            
+            scanf("%d",&k);
+            f1=find1(k, set1);
+            if(f1==NULL){
+                printf("-1 -1 -1 -1\n");
+            }
+            else{
+                f2=find2(k, set3);
+                f3=find3(k, set2);
+                f4=find4(k, set4);
+                printf("%d %d %d %d\n", f1->val, f2->key, f3->val, f4->key);
+            }
             break;
         case 'u':
-            
+            scanf("%d %d",&u1, &u2);
+            val1=union1(u1, u2, set1);
+            if(val1!=0){
+                val2=union2(u1, u2, set3);
+                val3=union3(u1, u2, set2);
+                val4=union4(u1, u2, set4);
+                printf("%d %d %d %d\n",val1, val2, val3, val4);
+            }
+            else{
+                printf("-1 -1 -1 -1\n");
+            }
             break;
         case 's':
             printf("%d %d %d %d\n", cnt1, cnt2, cnt3, cnt4);
