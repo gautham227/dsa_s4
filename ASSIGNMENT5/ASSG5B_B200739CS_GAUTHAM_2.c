@@ -7,11 +7,7 @@
 
 // prim and kruskal
 
-// struct knod{
-//     int dest;
-//     int weight;
-//     struct knod* next;
-// };
+// prim
 
 struct nnode{
     int dest;
@@ -197,28 +193,153 @@ void MST_PRIM(struct ngraph* g){
     printf("%d\n",ans);
 }
 
+// kruskal
+
+struct knod
+{
+	int key;
+	int weight;
+	struct knod *next;
+};
+typedef struct knod knod;
+
+struct kver
+{
+	int u;
+	int v;
+	int weight;
+	struct kver *next;
+};
+typedef struct kver kver;
+
+struct snod_k
+{
+	int key;
+	int rep;
+	int weight;
+	char colour;
+};
+typedef struct snod_k snod_k;
+
+struct kgraph{
+    int v;
+    struct knod** arr;
+    snod_k* ver;
+};
+
+kver* CREATE_KVE(int u, int v, int w)
+{
+    kver *pre;
+    pre = (kver *)malloc(sizeof(kver));
+    pre->u = u;
+    pre->v = v;
+    pre->weight = w;
+    pre->next = NULL;
+    return pre;
+}
+
+kver* ADDKRUS(kver* node, int u, int v, int w)
+{
+    if(node==NULL){
+        kver* n=CREATE_KVE(u,v,w);
+        return n;
+    }
+    if(node->weight>w){
+        kver* n=CREATE_KVE(u,v,w);
+        n->next=node;
+        return n;
+    }
+    else{
+        node->next=ADDKRUS(node->next,u,v,w);
+        return node;
+    }
+}
+
+struct knod* CREATE_LIST_K(int k, int w){
+    if(k==-1){
+        return NULL;
+    }
+    struct knod* pre;
+    pre=(struct knod*)malloc(sizeof(struct knod));
+    pre->key=k;
+    pre->weight=w;
+    pre->next=NULL;
+    return pre;
+}
+
+struct knod* INS_LIST_K(struct knod* v1, struct knod* v2){
+    if(v1==NULL){
+        return v2;
+    }
+    v1->next=INS_LIST_K(v1->next,v2);
+    return v1;
+}
+
+struct kgraph* unionop(struct kgraph* g, int u, int v){
+    for(int i=0;i<g->v;i++){
+        if(g->ver[i].rep==v){
+            g->ver[i].rep=u;
+        }
+    }
+    return g;
+}
+
+struct kgraph* CREATE_KGRAPH(int nv){
+    struct kgraph* g;
+    g=(struct kgraph*)malloc(sizeof(struct kgraph));
+    g->v=nv;
+    g->arr=(struct knod**)malloc(nv*sizeof(struct knod*));
+    int i;
+    for(i=0;i<nv;i++){
+        g->arr[i]=NULL;
+    }
+    g->ver=(snod_k*)malloc(nv*sizeof(snod_k));
+    for(i=0;i<nv;i++){
+        g->ver[i].key=i;
+        g->ver[i].rep=-1;
+        g->ver[i].weight=1e9+7;
+        g->ver[i].colour='w';
+    }
+    return g;
+}
+
+long long MST_KRUS(struct kgraph* g){
+    kver* curr;
+    curr=NULL;
+    long long sum=0;
+    for(int i=0;i<g->v;i++){
+        g->ver[i].colour='w';
+        g->ver[i].weight=1e9+7;
+        g->ver[i].rep=i;
+        struct knod* pre;
+        pre=g->arr[i];
+        while(pre!=NULL){
+            curr=ADDKRUS(curr,i,pre->key,pre->weight);
+            pre=pre->next;
+        }
+    }
+    while(curr!=NULL){
+        int u=curr->u;
+        int v=curr->v;
+        int w=curr->weight;
+        if(g->ver[u].rep!=g->ver[v].rep){
+            sum+=w;
+            g=unionop(g,g->ver[u].rep,g->ver[v].rep);
+        }
+        curr=curr->next;
+    }
+    return sum;
+}
+
 int main(){
     char d;
     scanf("%c",&d);
     int n;
     scanf("%d",&n);
-    // if(d=='b'){
-    //     for(int i=0;i<n;i++){
-    //         int val;
-    //         scanf("%d",&val);
-    //         char c='a';
-    //         int key;
-    //         while(1){
-    //             scanf("%c",&c);
-    //             if(c=='\n'){
-    //                 break;
-    //             }
-    //             scanf("%d",&key);
-                
-    //         }
-    //     }
-    // }
     if(d=='b'){
+
+        //prim
+
         struct ngraph* g;
         g=CREATEGRAPH_N(n);
         int src,dest,w;
@@ -268,6 +389,60 @@ int main(){
             }
         }
         MST_PRIM(g);
+    }
+    else{
+
+        //kruskal
+        
+        struct kgraph* g=CREATE_KGRAPH(n);
+        int adj[n][n];
+        char junk;
+        scanf("%c",&junk);
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                adj[i][j]=0;
+            }
+        }
+        for(int i=0;i<n;i++){
+            int k=0;
+            int mnode=-1;
+            char c;
+            while(1){
+                scanf("%c",&c);
+                if(c=='\n'){
+                    if(mnode==-1){
+                        mnode=k;
+                    }
+                    else{adj[mnode][k]=1;}
+                    break;
+                }
+                else if(c==' '){
+                    if(mnode==-1){
+                        mnode=k;
+                    }
+                    else{
+                        adj[mnode][k]=1;
+                    }
+                    k=0;
+                }
+                else{
+                    k=k*10+(c-'0');
+                }
+            }
+        }
+        for(int i=0;i<n;i++){
+            int val;
+            scanf("%d",&val);
+            for(int j=0;j<n;j++){
+                if(adj[val][j]==1){
+                    scanf("%d",&adj[val][j]);
+                    struct knod* rea=CREATE_LIST_K(j,adj[val][j]);
+                    g->arr[i]=INS_LIST_K(g->arr[i], rea);
+                }
+            }
+        }
+        long long ans=MST_KRUS(g);
+        printf("%lld\n",ans);
     }
     return 0;
 }
